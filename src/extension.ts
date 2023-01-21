@@ -23,7 +23,10 @@ const getGithubUrl = () => {
 };
 
 const updateData = (body: VSCodeStatusData) => {
-  axios.post("http://localhost:3000/api/vscode/presence", body);
+  axios.post(
+    "https://sharjects-sharlottes.vercel.app/api/vscode/presence",
+    body
+  );
 };
 
 const handleSelectionChanged = (

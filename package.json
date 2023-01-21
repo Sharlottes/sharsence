@@ -14,7 +14,7 @@
     "vscode.git"
   ],
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
   "scripts": {
     "vscode:prepublish": "yarn run compile",
@@ -31,5 +31,7 @@
   },
   "dependencies": {
     "axios": "^1.2.3"
-  }
+  },
+  "repository": "https://github.com/Sharlottes/sharsence.git",
+  "license": "MIT"
 }
