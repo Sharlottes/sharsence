@@ -1,39 +1,19 @@
 import * as vscode from "vscode";
 import axios from "axios";
-import { GitExtension } from "./@type";
+import type { GitExtension, VSCodeStatusData } from "./@type";
 import { throttle } from "./utils/throttle";
 
-type Position = { line: number; char: number };
-interface VSCodeStatusData {
-  workspaceName: string;
-  position: Array<{
-    start: Position;
-    end: Position;
-  }>;
-  githubUrl?: string;
-}
-
-const getGithubUrl = () => {
-  const git =
-    vscode.extensions.getExtension<GitExtension>("vscode.git")?.exports;
-  if (!git) throw new Error("git extension does not exist!");
-
-  const api = git.getAPI(1);
-  return api.repositories[0].state.remotes[0].fetchUrl?.slice(0, -4);
-};
-
-const updateData = (body: VSCodeStatusData) => {
-  axios.post(
-    "https://sharjects-sharlottes.vercel.app/api/vscode/presence",
-    body
-  );
-};
+const getGithubUrl = () =>
+  vscode.extensions.getExtension<GitExtension>("vscode.git")?.exports?.getAPI(1)
+    .repositories[0].state.remotes[0].fetchUrl;
 
 const handleSelectionChanged = (
   editor: vscode.TextEditorSelectionChangeEvent
 ) => {
   const body: VSCodeStatusData = {
-    workspaceName: vscode.workspace.name ?? "",
+    workspaceName: `${vscode.workspace.name}/${vscode.workspace.asRelativePath(
+      editor.textEditor.document.fileName
+    )}`,
     position: editor.selections.map((selection) => ({
       start: {
         char: selection.start.character,
@@ -46,7 +26,10 @@ const handleSelectionChanged = (
     })),
     githubUrl: getGithubUrl(),
   };
-  updateData(body);
+  axios.post(
+    "https://sharjects-sharlottes.vercel.app/api/vscode/presence",
+    body
+  );
 };
 
 export function activate(context: vscode.ExtensionContext) {
